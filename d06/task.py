@@ -1,4 +1,4 @@
-from functools import reduce
+from functools import reduce, partial
 from operator import mul
 
 
@@ -26,11 +26,17 @@ def calc_combinations(races):
     return combinations
 
 
-def calc_single_combinations(race):
+def race_won(race, press_time):
     race_time, race_distance = race
-    all_press = list(range(0, race_time))
-    valid_press = list(filter(lambda x: calc_distance(race_time, x) > race_distance, all_press))
-    ways_to_win_current = len(valid_press)
+    return calc_distance(race_time, press_time) > race_distance
+
+
+def calc_single_combinations(race):
+    this_race_won = partial(race_won, race)
+    race_time, _ = race
+    valid_press_lower_bound = next(filter(this_race_won, range(0, race_time)))
+    valid_press_upper_bound = next(filter(this_race_won, range(race_time, 0, -1)))
+    ways_to_win_current = valid_press_upper_bound - valid_press_lower_bound + 1
     return ways_to_win_current
 
 
